@@ -101,3 +101,28 @@ if (sessionUsername && sessionUserID) {
   chatBody.classList.remove("d-none");
   userTitle.innerHTML = sessionUsername;
 }
+
+// 입장한 유저 클릭 시
+const setActiveUser = (element, username, userID) => {
+  // 유저 클릭 시 상대방 이름에 표시
+  title.innerHTML = username;
+  title.setAttribute("userID", userID);
+
+  // 사용자 목록 활성 및 비활성 클래스 이벤트 핸들러
+  const list = document.getElementsByClassName("socket-users");
+  // 유저 클릭 시 색 표시
+  for (let i = 0; i < list.length; i++) {
+    list[i].classList.remove("table-active");
+  }
+
+  element.classList.add("table-active");
+
+  // 사용자 선택 후 메시지 대화 내용 영역 표시
+  msgDiv.classList.remove("d-none");
+  messages.classList.remove("d-none");
+  messages.innerHTML = "";
+  // 디비에서 대화 내용 가져오기
+  socket.emit("fetch-messages", { receiver: userID });
+  const notify = document.getElementById(userID);
+  notify.classList.add("d-none");
+};
