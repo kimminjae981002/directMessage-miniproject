@@ -7,6 +7,7 @@ require("dotenv").config();
 const app = express();
 const port = 3000;
 
+// 몽고디비 연결
 mongoose
   .connect(process.env.MONGO_DB)
   .then(() => {
