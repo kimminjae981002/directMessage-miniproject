@@ -1,8 +1,20 @@
 const express = require("express");
 const path = require("path");
+const mongoose = require("mongoose");
+
+require("dotenv").config();
 
 const app = express();
 const port = 3000;
+
+mongoose
+  .connect(process.env.MONGO_DB)
+  .then(() => {
+    console.log("mongodb connected");
+  })
+  .catch((err) => {
+    console.log(err);
+  });
 
 const http = require("http");
 const { Server } = require("socket.io");
