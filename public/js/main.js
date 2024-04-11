@@ -60,7 +60,7 @@ const socketConnect = async (username, userID) => {
 // 서버에서 입장 된 유저들을 받아옴
 socket.on("users-data", ({ users }) => {
   // 본인 제거
-  const index = users.findIndex((user) => user.userID == socket.id);
+  const index = users.findIndex((user) => user.userID === socket.id);
   // -1이 아니라면 존재함
   if (index > -1) {
     // 내 위치에서 한개를 지움
@@ -78,6 +78,7 @@ socket.on("users-data", ({ users }) => {
   }
   ul += `</table>`;
   if (users.length > 0) {
+    userTable.innerHTML = ul;
     userTagline.innerHTML = "접속 중인 유저";
     userTagline.classList.remove("text-danger");
     userTagline.classList.add("text-success");
