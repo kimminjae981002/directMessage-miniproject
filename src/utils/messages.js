@@ -8,6 +8,7 @@ const messageSchema = mongoose.Schema({
     required: true,
   },
   // 메시지
+  // 뭐라 보냇고 뭐라 왔는지가 messages에 들어간다.
   messages: [
     {
       // 누구에게 왔는지
@@ -28,3 +29,6 @@ const messageSchema = mongoose.Schema({
     },
   ],
 });
+
+const messageModel = mongoose.model("Message", messageSchema);
+module.exports = messageModel;
