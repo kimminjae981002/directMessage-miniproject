@@ -51,6 +51,7 @@ const createSession = async (username) => {
     .catch((err) => console.log(err));
 };
 
+// 소켓 유저 연결
 const socketConnect = async (username, userID) => {
   socket.auth = { username, userID };
   // 원래는 자동 connect를 false로 해놔서 유저가 입장할 때만 연결 시킨다.
@@ -89,6 +90,7 @@ socket.on("users-data", ({ users }) => {
   }
 });
 
+// 새로고침해도 로컬에 유저가 있다면  보여주기
 const sessionUsername = localStorage.getItem("session-username");
 const sessionUserID = localStorage.getItem("session-userID");
 
