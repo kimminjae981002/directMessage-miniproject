@@ -5,6 +5,8 @@ const crypto = require("crypto");
 
 require("dotenv").config();
 
+const { saveMessages } = require("./utils/messages");
+
 const app = express();
 const port = 3000;
 
@@ -65,6 +67,7 @@ io.on("connection", async (socket) => {
   // 클라이언트에서 보내온 메시지
   // 클라이언트에서 온 메시지 상대방에게 전달
   socket.on("message-to-server", (payload) => {
+    // 클라이언트에서 온 메시지를 서버로 받고 서버에서 상대방에게 메시지 전달
     io.to(payload.to).emit("message-to-client", payload);
     saveMessages(payload);
   });

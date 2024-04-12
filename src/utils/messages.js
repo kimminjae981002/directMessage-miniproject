@@ -1,34 +1,34 @@
-const mongoose = require("mongoose");
+const messageModel = require("../models/messages.model");
 
-// 메시지 스키마
-const messageSchema = mongoose.Schema({
-  // A USER와 B USER의 아이디를 합쳐서 만든 토큰 따로 로직이 존재한다.
-  userToken: {
-    type: String,
-    required: true,
-  },
-  // 메시지
-  // 뭐라 보냇고 뭐라 왔는지가 messages에 들어간다.
-  messages: [
-    {
-      // 누구에게 왔는지
-      from: {
-        type: String,
-        required: true,
-      },
-      // 무슨 내용인지
-      message: {
-        type: String,
-        required: true,
-      },
-      // 작성한 시간
-      time: {
-        type: String,
-        required: true,
-      },
-    },
-  ],
-});
+// 수신자와 송신자 합 판별
+const getToken = (sender, receiver) => {
+  const key = [sender, receiver].sort().join("");
+  return key;
+};
 
-const messageModel = mongoose.model("Message", messageSchema);
-module.exports = messageModel;
+// message온 것들을 저장
+const saveMessages = async ({ from, to, message, time }) => {
+  try {
+    const token = getToken(from, to);
+    const data = {
+      from,
+      message,
+      time,
+    };
+
+    // await를 사용하여 updateOne 메서드가 Promise를 반환하도록 변경
+    // 수신자와 송신자 합 key를 이용함. db에 내용 저장
+    await messageModel.updateOne(
+      { userToken: token },
+      {
+        $push: { message: data },
+      }
+    );
+
+    console.log("메시지 전송");
+  } catch (error) {
+    console.error("메시지 전송 중 오류 발생:", error);
+  }
+};
+
+module.exports = { saveMessages };

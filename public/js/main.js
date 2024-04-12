@@ -169,11 +169,29 @@ msgForm.addEventListener("submit", (e) => {
     message: message.value,
     time,
   };
-
+  // 서버에 메시지 payload 전송
   socket.emit("message-to-server", payload);
-
+  // 브라우저에 내용 표시 및 스타일링
   appendMessage({ ...payload, background: "bg-success", position: "right" });
 
   message.value = "";
   message.focus();
+});
+
+socket.on("message-to-client", ({ from, message, time }) => {
+  const receiver = title.getAttribute("userID");
+  const notify = document.getElementById(from);
+
+  if (receiver === null) {
+    notify.classList.remove("d-none");
+  } else if (receiver === from) {
+    appendMessage({
+      message,
+      time,
+      background: "bg-secondary",
+      position: "left",
+    });
+  } else {
+    notify.classList.remove("d-none");
+  }
 });
