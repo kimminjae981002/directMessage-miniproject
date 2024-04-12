@@ -76,7 +76,15 @@ io.on("connection", async (socket) => {
   socket.on("fetch-messages", () => {});
 
   // 유저가 방에서 나갔을 때
-  socket.on("disconnect", () => {});
+  socket.on("disconnect", () => {
+    // 내가 나갔으니 나를 제외한 사람들 보여주기
+    users = users.filter((user) => user.userID !== socket.id);
+    console.log(users);
+    // 사이드바에서 리스트 없애기
+    io.emit("users-data", { users });
+    // 대화 중이라면 대화창 없애기
+    io.emit("user-away", socket.id);
+  });
 });
 server.listen(port, () => {
   console.log(`server open ${port}`);

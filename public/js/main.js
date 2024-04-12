@@ -75,6 +75,16 @@ const appendMessage = ({ message, time, background, position }) => {
   messages.scrollTop(0, messages.scrollHeight);
 };
 
+// 상대 나갈 시 채팅방 없애기
+socket.on("user-away", (userID) => {
+  const to = title.getAttribute("userID");
+  if (to === userID) {
+    title.innerHTML = "&nbsp;";
+    msgDiv.classList.add("d-none");
+    messages.classList.add("d-none");
+  }
+});
+
 // 서버에서 입장 된 유저들을 받아옴
 socket.on("users-data", ({ users }) => {
   // 본인 제거
@@ -86,6 +96,7 @@ socket.on("users-data", ({ users }) => {
   }
 
   // 생성하기 user table list
+  userTable.innerHTML = "";
   let ul = `<table class="table table-hover">`;
   for (let user of users) {
     // 동적으로 만듦
