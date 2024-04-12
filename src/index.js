@@ -63,7 +63,11 @@ io.on("connection", async (socket) => {
   io.emit("users-data", { users });
 
   // 클라이언트에서 보내온 메시지
-  socket.on("message-to-server", () => {});
+  // 클라이언트에서 온 메시지 상대방에게 전달
+  socket.on("message-to-server", (payload) => {
+    io.to(payload.to).emit("message-to-client", payload);
+    saveMessages(payload);
+  });
 
   // 데이터베이스에서 메시지 가져오기
   socket.on("fetch-messages", () => {});

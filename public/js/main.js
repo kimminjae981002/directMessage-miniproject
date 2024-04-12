@@ -58,6 +58,23 @@ const socketConnect = async (username, userID) => {
   await socket.connect();
 };
 
+// 메시지 보냈을 때 추가하기
+const appendMessage = ({ message, time, background, position }) => {
+  let div = document.createElement("div");
+  div.classList.add(
+    "message",
+    "bg-opacity-25",
+    "m-2",
+    "px-2",
+    "py-1",
+    background,
+    position
+  );
+  div.innerHTML = `<span class="msg-text">${message}</span><span class="msg-time">${time}</span>`;
+  messages.append(div);
+  messages.scrollTop(0, messages.scrollHeight);
+};
+
 // 서버에서 입장 된 유저들을 받아옴
 socket.on("users-data", ({ users }) => {
   // 본인 제거
@@ -72,6 +89,7 @@ socket.on("users-data", ({ users }) => {
   let ul = `<table class="table table-hover">`;
   for (let user of users) {
     // 동적으로 만듦
+    // this는 현재 데이터
     ul += `<tr class="socket-users" onclick="setActiveUser(this,'${user.username}', '${user.userID}')">
     <td>${user.username}<span class="text-danger ps-1 d-none" id="${user.userID}">!</span></td>
             </tr>
@@ -106,6 +124,7 @@ if (sessionUsername && sessionUserID) {
 const setActiveUser = (element, username, userID) => {
   // 유저 클릭 시 상대방 이름에 표시
   title.innerHTML = username;
+  // 메시지를 전송할 때 누구에게 보낼지 set해놓고 get하면됨
   title.setAttribute("userID", userID);
 
   // 사용자 목록 활성 및 비활성 클래스 이벤트 핸들러
@@ -123,6 +142,38 @@ const setActiveUser = (element, username, userID) => {
   messages.innerHTML = "";
   // 디비에서 대화 내용 가져오기
   socket.emit("fetch-messages", { receiver: userID });
+  // 메시지 전송 시 상대방에게 알림 표시
   const notify = document.getElementById(userID);
   notify.classList.add("d-none");
 };
+
+// 메시지 전송 시
+const msgForm = document.querySelector(".msgForm");
+const message = document.getElementById("message");
+
+msgForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  const to = title.getAttribute("userID");
+  // 지역 현재 시간, hour, minute, 12시간 형식
+  const time = new Date().toLocaleString("en-US", {
+    hour: "numeric",
+    minute: "numeric",
+    hour12: true,
+  });
+
+  // 메시지 payload 만들기
+  const payload = {
+    from: socket.id,
+    to,
+    message: message.value,
+    time,
+  };
+
+  socket.emit("message-to-server", payload);
+
+  appendMessage({ ...payload, background: "bg-success", position: "right" });
+
+  message.value = "";
+  message.focus();
+});
