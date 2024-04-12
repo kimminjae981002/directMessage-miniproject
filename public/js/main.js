@@ -72,7 +72,7 @@ const appendMessage = ({ message, time, background, position }) => {
   );
   div.innerHTML = `<span class="msg-text">${message}</span><span class="msg-time">${time}</span>`;
   messages.append(div);
-  messages.scrollTop(0, messages.scrollHeight);
+  messages.scrollTo(0, messages.scrollHeight);
 };
 
 // 상대 나갈 시 채팅방 없애기
@@ -204,5 +204,29 @@ socket.on("message-to-client", ({ from, message, time }) => {
     });
   } else {
     notify.classList.remove("d-none");
+  }
+});
+
+socket.on("stored-messages", ({ messages }) => {
+  if (messages.length > 0) {
+    messages.forEach((msg) => {
+      const payload = {
+        message: msg.message,
+        time: msg.time,
+      };
+      if (msg.from === socket.id) {
+        appendMessage({
+          ...payload,
+          background: "bg-success",
+          position: "right",
+        });
+      } else {
+        appendMessage({
+          ...payload,
+          background: "bg-secondary",
+          position: "left",
+        });
+      }
+    });
   }
 });

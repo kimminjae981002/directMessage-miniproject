@@ -23,12 +23,33 @@ const saveMessages = async ({ from, to, message, time }) => {
       {
         $push: { message: data },
       }
-    );
-
-    console.log("메시지 전송");
+    ),
+      console.log("메시지 전송");
   } catch (error) {
     console.error("메시지 전송 중 오류 발생:", error);
   }
 };
 
-module.exports = { saveMessages };
+// db에서 메시지 가져오기
+const fetchMessages = async (io, sender, receiver) => {
+  const token = getToken(sender, receiver);
+  // 연락한 내용이 있다면 메시지를 보내주고 없다면 새로운 메시지를 만든다.
+  const foundToken = await messageModel.findOne({ userToken: token });
+  if (foundToken) {
+    io.to(sender).emit("stored-mesasges", { messages: foundToken.messages });
+  } else {
+    const data = {
+      userToken: token,
+      messages: [],
+    };
+    const message = new messageModel(data);
+    const savedMessage = message.save();
+    if (savedMessage) {
+      console.log("메시지 생성");
+    } else {
+      console.log("메시지 에러");
+    }
+  }
+};
+
+module.exports = { saveMessages, fetchMessages };
