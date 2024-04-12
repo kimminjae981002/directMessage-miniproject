@@ -21,7 +21,7 @@ const saveMessages = async ({ from, to, message, time }) => {
     await messageModel.updateOne(
       { userToken: token },
       {
-        $push: { message: data },
+        $push: { messages: data },
       }
     ),
       console.log("메시지 전송");
@@ -30,25 +30,27 @@ const saveMessages = async ({ from, to, message, time }) => {
   }
 };
 
-// db에서 메시지 가져오기
 const fetchMessages = async (io, sender, receiver) => {
-  const token = getToken(sender, receiver);
-  // 연락한 내용이 있다면 메시지를 보내주고 없다면 새로운 메시지를 만든다.
-  const foundToken = await messageModel.findOne({ userToken: token });
-  if (foundToken) {
-    io.to(sender).emit("stored-mesasges", { messages: foundToken.messages });
-  } else {
-    const data = {
-      userToken: token,
-      messages: [],
-    };
-    const message = new messageModel(data);
-    const savedMessage = message.save();
-    if (savedMessage) {
-      console.log("메시지 생성");
+  try {
+    const token = getToken(sender, receiver);
+    // 디비에서 토큰에 해당하는 메시지를 찾음
+    const foundToken = await messageModel.findOne({ userToken: token });
+
+    if (foundToken) {
+      // 메시지를 찾았을 경우 클라이언트에게 메시지 전송
+      io.to(sender).emit("stored-messages", { messages: foundToken.messages });
     } else {
-      console.log("메시지 에러");
+      // 토큰에 해당하는 메시지가 없을 경우 새로운 메시지 생성
+      const data = {
+        userToken: token,
+        messages: [],
+      };
+      const newMessage = new messageModel(data);
+      await newMessage.save();
+      console.log("새로운 메시지 생성");
     }
+  } catch (error) {
+    console.error("메시지 가져오기 중 오류 발생:", error);
   }
 };
 

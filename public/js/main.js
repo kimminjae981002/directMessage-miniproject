@@ -151,7 +151,7 @@ const setActiveUser = (element, username, userID) => {
   msgDiv.classList.remove("d-none");
   messages.classList.remove("d-none");
   messages.innerHTML = "";
-  // 디비에서 대화 내용 가져오기
+  // 현재 유저 서버에 보내주기
   socket.emit("fetch-messages", { receiver: userID });
   // 메시지 전송 시 상대방에게 알림 표시
   const notify = document.getElementById(userID);
@@ -207,6 +207,7 @@ socket.on("message-to-client", ({ from, message, time }) => {
   }
 });
 
+// 서버에서 디비에 저장된 메시지 가져오기
 socket.on("stored-messages", ({ messages }) => {
   if (messages.length > 0) {
     messages.forEach((msg) => {
